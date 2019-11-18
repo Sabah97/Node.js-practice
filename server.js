@@ -61,6 +61,23 @@ app.post("/new_article", function(request, response) {
 
   //response.json({ msg: "successfully received" });
 });
+app.get('/article/:id', function(request,response){
+  if(request.params.id){
+    Article.find({'_id':request.params.id},
+    function(err,data){
+      if(err){
+        return response.status(400),json({msg:'Could not query the db'})
+
+      }
+      return response.render('article.ejs',{
+        article:data[0]
+      });
+    });
+  }
+  else{
+    response.json({msg:"Article not found"})
+  }
+})
 
 app.get("/", function(request, response) {
   response.sendFile(__dirname + "/views/index.html");
