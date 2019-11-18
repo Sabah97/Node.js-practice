@@ -124,3 +124,4 @@ app.get("/article/:index", (req, res) => {
 server.listen(3000, "localhost", function() {
   console.log("Server running");
 });
+///9b
