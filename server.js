@@ -4,33 +4,62 @@ const app = express();
 const server = http.Server(app);
 const bodyParser = require("body-parser");
 //var mongo= require('mongodb')
+var mongoose=require('mongoose')
 var db,uri="mongodb+srv://Sabah97:sabah@97@cluster0-ozffx.mongodb.net/test?retryWrites=true&w=majority"
-mongo.MongoClient.connect(uri,{useNewUrlParser:true ,useUnifiedTopology:true},function(err,client){
-if(err){
-console.log('Could not connect to MongoDB')
-} else{
-db=client.db('node-cw9')
-}
+mongoose.connect(uri,{useNewUrlParser:true,useUnifiedTopology:true})
+mongoose.connection.on('error',function(err){
+  console.log('Could not connect to MongoDB')
 })
-var save=function(form_data){
-  db.createCollection('articles',function(err,collection){
-    var collection=db.collection('articles')
-    collection.save(form_data)
 
-  })
-}
+
+// mongo.MongoClient.connect(uri,{useNewUrlParser:true ,useUnifiedTopology:true},function(err,client){
+// if(err){
+// console.log('Could not connect to MongoDB')
+// } else{
+// db=client.db('node-cw9')
+// }
+// })
+// var save=function(form_data){
+//   db.createCollection('articles',function(err,collection){
+//     var collection=db.collection('articles')
+//     collection.save(form_data)
+
+//   })
+// }
+
+var Schema=mongoose.Schema
+var articleSchema=new Schema(
+  {
+    title:{
+      type:String,
+      required:"Title is required"
+    },
+    content:{
+      type:String,
+      required:"Content is required"
+    }
+  }
+)
+var Article=mongoose.model('Artcle', articleSchema) 
 app.use(bodyParser.urlencoded({ extended: true }));
 
 let articles = [];
 
-app.post("/new_article", (request, response) => {
-  save(request.body)
+app.post("/new_article", function(request, response) {
+  let article=new Article(request.body)
+  article.save(function(err,data){
+    if(err){
+      return response.status(400).json({msg:"All fields are required"})
+    }
+    return response.status(200).json({article:data})
+  })
+  // save(request.body)
   articles.push(request.body);
   console.log(articles);
   // console.log(request.body.title);
   // console.log(request.body.content);
 
-  response.json({ msg: "successfully received" });
+  //response.json({ msg: "successfully received" });
 });
 
 app.get("/", function(request, response) {
